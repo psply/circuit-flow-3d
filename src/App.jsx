@@ -11,7 +11,7 @@ import * as THREE from 'three'
 const SPACING = 1.6
 const BG = '#071022'
 const ACCENT = '#00E5FF'
-const LEVEL_COUNT = 10
+const LEVEL_COUNT = 11
 
 // ---------------- HELPERS ----------------
 const opposites = { '+x':'-x','-x':'+x','+y':'-y','-y':'+y','+z':'-z','-z':'+z' }
@@ -120,7 +120,7 @@ function generateLevel(n){
     add([0,1,0],'wire',['+y','-y'],0)
     add([2,0,1],'wire',['+y','-y'],1)
     add([1,2,1],'wire',['+x','-x'],3)  // Bait: +z/-z upper distract
-  } else {  // n===10 ultimate hidden deep (~12 rots, 12 nodes)
+  } else if(n===10){  // n===10 ultimate hidden deep (~12 rots, 12 nodes)
     add([0,0,0],'source',['+x'],0)
     add([1,0,0],'wire',['-x','+z'],1)
     add([1,0,1],'wire',['-z','+y'],1)
@@ -133,6 +133,29 @@ function generateLevel(n){
     add([1,2,0],'wire',['+y','-y'],2)
     add([2,0,1],'wire',['+z','-z'],3)
     add([0,0,1],'wire',['+x','-x'],1)
+  } else if(n===11){  // n===11 ultimate maze: 14 nodes, ~12 rots, spiral with 5+ traps
+    add([0,0,0],'source',['+x'],0)
+    add([1,0,0],'wire',['-x','+x','+z'],0)  // rot=0: -x/+x/+y mis, need 5 rots for -x/+z
+    add([1,0,1],'wire',['-z','+y','-y'],2)  // rot=2: +x/+z mis, need 2 rots for -z/+y up
+    add([1,1,1],'wire',['-y','+z'],1)  // rot=1: -y/-x mis, need 3 rots for -y/+z
+    add([1,1,2],'wire',['-z','+x','+y'],3)  // rot=3: -z/-y mis, need 1 rot for -z/+x bridge
+    add([0,1,2],'wire',['+x','-x','+z'],2)  // rot=2: -y/+y mis, need 4 rots for +x/+z mirror left
+    add([0,2,2],'wire',['-z','+y'],0)  // rot=0: -x/+x mis, need 2 rots for -z/+y down-mirror
+    add([0,1,1],'wire',['+y','-y','+x'],3)  // rot=3: +z/-z mis, need 1 rot for +y/+x rise
+    add([1,1,0],'wire',['-y','+z'],2)  // rot=2: +x/-y mis, need 3 rots for -y/+z
+    add([2,1,0],'target',['-x'],0)  // 终点保持
+    // Traps: 11 distractors - mirror loops, dead mirrors, pseudo-ends
+    add([2,0,0],'wire',['-x','+z'],1)  // Mirror bait: +y/-y self-loop
+    add([0,1,0],'wire',['+y','-y'],0)  // Vertical stub mirror
+    add([3,0,1],'wire',['-z','+x'],2)  // Dead X mirror loop
+    add([1,2,0],'wire',['+y','-y'],3)  // Upper vertical dead mirror
+    add([2,2,0],'wire',['+x','-x'],1)  // ← 修复：移到 [2,2,0]，假X循环诱饵（从上层看起来连终但死路）
+    add([0,0,1],'wire',['+x','-x'],0)  // Front X bait mirror
+    add([3,1,1],'wire',['+y','-y'],2)  // Isolated Y mirror loop
+    add([1,2,2],'wire',['-z','+z'],1)  // Z fake cycle mirror
+    add([3,2,2],'wire',['-x','+x'],3)  // Pseudo-end mirror branch
+    add([0,2,3],'wire',['+y','-y'],0)  // High vertical dead mirror
+    add([2,2,1],'wire',['+z','-z'],2)  // Extra Z trap
   }
 
   return nodes
